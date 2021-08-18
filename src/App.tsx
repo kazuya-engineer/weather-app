@@ -4,19 +4,42 @@ import Form from "./components/Form";
 import Results from "./components/Results";
 import './App.css';
 
+type ResultsStateType = {
+  country: string;
+  cityName: string;
+  temperature: string;
+  conditionText: string;
+  icon: string;
+}
+
 function App() {
   const [city,setCity] = useState<string>("");
-  const getWeather = (e:any) => { 
+  const [results,setResults] = useState<ResultsStateType>({
+    country: "",
+    cityName: "",
+    temperature: "",
+    conditionText: "",
+    icon: ""
+  });
+  const getWeather = (e:React.FormEvent<HTMLFormElement>) => { 
       e.preventDefault();
-      fetch("http://api.weatherapi.com/v1/current.json?key=0dfb86719d8349e797b142110211008&q=London&aqi=no")
-           .then( res => res.json())
-           .then(data =>console.log(data))
+      fetch(`http://api.weatherapi.com/v1/current.json?key=0dfb86719d8349e797b142110211008&q=${city}&aqi=no`)
+        .then( res => res.json())
+        .then(data =>{
+          setResults({
+            country: data.location.country,
+            cityName: data.location.name,
+            temperature: data.current.temp_c,
+            conditionText: data.current.condition.text,
+            icon: data.current.condition.icon
+          })
+        })
   }    
   return (
     <div className="test">
         <Title />
         <Form setCity={setCity} getWeather={getWeather}/>
-        <Results/>
+        <Results results={results}/>
     </div>
   );
 }
